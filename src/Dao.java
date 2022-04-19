@@ -19,7 +19,7 @@ public class Dao {
 
 	// constructor
 	public Dao() {
-	  
+
 	}
 
 	public Connection getConnection() {
@@ -39,19 +39,38 @@ public class Dao {
 
 	public void createTables() {
 		// variables for SQL Query table creations
-		final String createTicketsTable = "CREATE TABLE jpapa_tickets(ticket_id INT AUTO_INCREMENT PRIMARY KEY, ticket_issuer VARCHAR(30), ticket_description VARCHAR(200))";
-		final String createUsersTable = "CREATE TABLE jpapa_users(uid INT AUTO_INCREMENT PRIMARY KEY, uname VARCHAR(30), upass VARCHAR(30), admin int)";
-
+		final String createLoginTable = "CREATE TABLE IF NOT EXISTS sp_login ("
+				+ " userID INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, "
+				+ " userName VARCHAR(32) NOT NULL, "
+				+ " userPassword VARCHAR(32) NOT NULL, "
+				+ " adminStatus INT )";
+		final String createOpenTicketTable = "CREATE TABLE IF NOT EXISTS sp_opentickets ( "
+				+ " ticketID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
+				+ " userID INT NOT NULL, "
+				+ " userName VARCHAR(32) NOT NULL, "
+				+ " startDate DATETIME NOT NULL, "
+				+ " ticketDesc VARCHAR(32) NOT NULL, "
+				+ " FOREIGN KEY (userID) references sp_login(userID) ON DELETE CASCADE )";
+		final String createCloseTicketTable = "CREATE TABLE IF NOT EXISTS sp_closetickets "
+				+ " (ticketID INT NOT NULL, "
+				+ " startDate DATETIME NOT NULL, "
+				+ " closeDate DATETIME NOT NULL, "
+				+ " userID INTEGER UNSIGNED NOT NULL, "
+				+ " userNAME VARCHAR(32) NOT NULL, "
+				+ " FOREIGN KEY (ticketID) references sp_opentickets(ticketID) ON DELETE CASCADE, "
+				+ " FOREIGN KEY (userID) references sp_login(userID) ON DELETE CASCADE )";
 		try {
 
 			// execute queries to create tables
 
 			statement = getConnection().createStatement();
-
-			statement.executeUpdate(createTicketsTable);
-			statement.executeUpdate(createUsersTable);
-			System.out.println("Created tables in given database...");
-
+			System.out.println("Succesfully got connection");
+			statement.executeUpdate(createLoginTable);
+			System.out.println("Successfully created login table");
+			statement.executeUpdate(createOpenTicketTable);
+			System.out.println("Successfully created open ticket table");
+			statement.executeUpdate(createCloseTicketTable);
+			System.out.println("Successfully created close ticket table");
 			// end create table
 			// close connection/statement object
 			statement.close();
@@ -138,7 +157,7 @@ public class Dao {
 		try {
 			statement = connect.createStatement();
 			results = statement.executeQuery("SELECT * FROM jpapa_tickets");
-			//connect.close();
+			// connect.close();
 		} catch (SQLException e1) {
 			e1.printStackTrace();
 		}
