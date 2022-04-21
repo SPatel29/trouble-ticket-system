@@ -5,9 +5,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -47,6 +49,7 @@ public class Dao {
 		final String createOpenTicketTable = "CREATE TABLE IF NOT EXISTS sp_opentickets ( "
 				+ " ticketID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
 				+ " userID INT NOT NULL, "
+				+ " ticketName VARCHAR(32) NOT NULL, "
 				+ " userName VARCHAR(32) NOT NULL, "
 				+ " startDate DATETIME NOT NULL, "
 				+ " ticketDesc VARCHAR(32) NOT NULL, "
@@ -99,11 +102,12 @@ public class Dao {
 			String line;
 			while ((line = br.readLine()) != null) {
 				array.add(Arrays.asList(line.split(",")));
+				System.out.println(line);
 			}
+			br.close();
 		} catch (Exception e) {
 			System.out.println("There was a problem loading the file");
 		}
-
 		try {
 
 			// Setup the connection with the DB
@@ -114,7 +118,8 @@ public class Dao {
 			// and PASS (insert) that data into your User table
 			for (List<String> rowData : array) {
 
-				sql = "insert into jpapa_users(uname,upass,admin) " + "values('" + rowData.get(0) + "'," + " '"
+				sql = "insert into sp_login(userName, userPassword, adminStatus) " + "values('" + rowData.get(0) + "',"
+						+ " '"
 						+ rowData.get(1) + "','" + rowData.get(2) + "');";
 				statement.executeUpdate(sql);
 			}
@@ -128,19 +133,35 @@ public class Dao {
 		}
 	}
 
-	public int insertRecords(String ticketName, String ticketDesc) {
+	public int insertRecords(String userName, String ticketName, String ticketDesc, String userID, Timestamp startDate) {
 		int id = 0;
 		try {
+			System.out.println(userID);
 			statement = getConnection().createStatement();
-			statement.executeUpdate("Insert into jpapa_tickets" + "(ticket_issuer, ticket_description) values(" + " '"
-					+ ticketName + "','" + ticketDesc + "')", Statement.RETURN_GENERATED_KEYS);
+			String get_user_name = "SELECT userName FROM sp_login WHERE userID = '" + userID + "'";
+			ResultSet nameSet = statement.executeQuery(get_user_name);
+			System.out.println("after select statement");
+			String insetQuery = "INSERT INTO sp_opentickets (userID, ticketName, userName, startDate, ticketDesc) VALUES (?, ?, ?, ?, ?)";
+			PreparedStatement psmt = getConnection().prepareStatement(insetQuery,
+					PreparedStatement.RETURN_GENERATED_KEYS);
 
+			if (nameSet.next()) {
+				psmt.setInt(1, Integer.parseInt(userID));
+				psmt.setString(2, ticketName);
+				psmt.setString(3, nameSet.getString(1)); // get userName from resultset
+				psmt.setTimestamp(4, startDate);
+				psmt.setString(5, ticketDesc);
+				psmt.executeUpdate();
+				System.out.println("After executeUpdate statement");
+			}
+			System.out.println("succesfully added record");
 			// retrieve ticket id number newly auto generated upon record insertion
 			ResultSet resultSet = null;
-			resultSet = statement.getGeneratedKeys();
+			resultSet = psmt.getGeneratedKeys();
 			if (resultSet.next()) {
 				// retrieve first field in table
 				id = resultSet.getInt(1);
+				System.out.println("after the id = resultSet...");
 			}
 
 		} catch (SQLException e) {

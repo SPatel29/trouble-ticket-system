@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -14,6 +15,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+
 
 @SuppressWarnings("serial")
 public class Tickets extends JFrame implements ActionListener {
@@ -120,12 +122,14 @@ public class Tickets extends JFrame implements ActionListener {
 		} else if (e.getSource() == mnuItemOpenTicket) {
 
 			// get ticket information
-			String ticketName = JOptionPane.showInputDialog(null, "Enter your name");
+			String userName = JOptionPane.showInputDialog(null, "Enter your name");
+			String ticketName = JOptionPane.showInputDialog(null, "Enter ticket name");
 			String ticketDesc = JOptionPane.showInputDialog(null, "Enter a ticket description");
-
+			String ticketUserID = JOptionPane.showInputDialog(null, "Enter userID of ticket maker");
+			String ticketStartDate = JOptionPane.showInputDialog(null, "Enter start date of ticket");
 			// insert ticket information to database
-
-			int id = dao.insertRecords(ticketName, ticketDesc);
+			Timestamp startTime = Timestamp.valueOf(ticketStartDate);
+			int id = dao.insertRecords(userName, ticketName, ticketDesc, ticketUserID, startTime);
 
 			// display results if successful or not to console / dialog box
 			if (id != 0) {
