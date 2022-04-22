@@ -126,27 +126,24 @@ public class Dao {
 		}
 	}
 
-	public int insertRecords(String userName, String ticketName, String ticketDesc, String userID,
-			Timestamp startDate) {
+	public int insertRecords(int userID, String ticketName, String ticketDesc, Timestamp currentTime) {
 		int id = 0;
 		try {
 			System.out.println(userID);
 			statement = getConnection().createStatement();
-			String get_user_name = "SELECT userName FROM sp_login WHERE userID = '" + userID + "'";
-			ResultSet nameSet = statement.executeQuery(get_user_name);
-			System.out.println("after select statement");
+			String userNameQuery = "SELECT userName FROM sp_login WHERE userID = '" + userID + "'";
+			ResultSet nameSet = statement.executeQuery(userNameQuery);
+			//System.out.println("after select statement");
 			String insetQuery = "INSERT INTO sp_opentickets (userID, ticketName, userName, startDate, ticketDesc)"
 					+ "VALUES (?, ?, ?, ?, ?)";
 			PreparedStatement psmt = getConnection().prepareStatement(insetQuery,
 					PreparedStatement.RETURN_GENERATED_KEYS);
 
 			if (nameSet.next()) {
-				psmt.setInt(1, Integer.parseInt(userID));
+				psmt.setInt(1, userID);
 				psmt.setString(2, ticketName);
 				psmt.setString(3, nameSet.getString(1)); // get userName from resultset
-				psmt.setTimestamp(4, startDate);
-				// psmt.setTimestamp(5, null);
-				// psmt.setString(6, "Open");
+				psmt.setTimestamp(4, currentTime);
 				psmt.setString(5, ticketDesc);
 				psmt.executeUpdate();
 				System.out.println("After executeUpdate statement");

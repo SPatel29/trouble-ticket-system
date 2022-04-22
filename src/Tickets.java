@@ -6,7 +6,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.sql.SQLException;
+import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.zone.ZoneOffsetTransitionRule.TimeDefinition;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -125,15 +127,20 @@ public class Tickets extends JFrame implements ActionListener {
 			System.exit(0);
 		} else if (e.getSource() == mnuItemOpenTicket) {
 
-			// get ticket information
-			String userName = JOptionPane.showInputDialog(null, "Enter your name");
+			String userID;
+			if (chkIfAdmin) {
+				userID = JOptionPane.showInputDialog(null, "Enter ID of user who ticket should be issued to");
+			} else {
+				userID = JOptionPane.showInputDialog(null, "Enter your user ID");
+			}
 			String ticketName = JOptionPane.showInputDialog(null, "Enter ticket name");
 			String ticketDesc = JOptionPane.showInputDialog(null, "Enter a ticket description");
-			String ticketUserID = JOptionPane.showInputDialog(null, "Enter userID of ticket maker");
-			String ticketStartDate = JOptionPane.showInputDialog(null, "Enter start date of ticket");
+			// get ticket information
+
 			// insert ticket information to database
-			Timestamp startTime = Timestamp.valueOf(ticketStartDate);
-			int id = dao.insertRecords(userName, ticketName, ticketDesc, ticketUserID, startTime);
+			long startTime = System.currentTimeMillis();
+			Timestamp currentTime = new Timestamp(startTime);
+			int id = dao.insertRecords(Integer.parseInt(userID), ticketName, ticketDesc, currentTime);
 
 			// display results if successful or not to console / dialog box
 			if (id != 0) {
@@ -178,8 +185,7 @@ public class Tickets extends JFrame implements ActionListener {
 				System.out.println("Ticket cannot be created!!!");
 		}
 
-
-		else if (e.getSource() == mnuItemDelete){
+		else if (e.getSource() == mnuItemDelete) {
 			String ticketID = JOptionPane.showInputDialog(null, "Enter ticket ID");
 			int id = 0;
 
@@ -190,7 +196,6 @@ public class Tickets extends JFrame implements ActionListener {
 			} else
 				System.out.println("Ticket cannot be deleted!!!");
 		}
-
 
 		else if (e.getSource() == mnuItemUpdate) {
 			String ticketID = JOptionPane.showInputDialog(null, "Enter existing ticket ID");
