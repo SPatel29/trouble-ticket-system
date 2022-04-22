@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.mysql.cj.protocol.Resultset;
+
 public class Dao {
 	// instance fields
 	static Connection connect = null;
@@ -52,15 +54,9 @@ public class Dao {
 				+ " ticketName VARCHAR(32) NOT NULL, "
 				+ " userName VARCHAR(32) NOT NULL, "
 				+ " startDate DATETIME NOT NULL, "
+				+ " closeDate DATETIME, " // set to NULL
+				+ " caseStatus VARCHAR(32) NOT NULL, "
 				+ " ticketDesc VARCHAR(32) NOT NULL, "
-				+ " FOREIGN KEY (userID) references sp_login(userID) ON DELETE CASCADE )";
-		final String createCloseTicketTable = "CREATE TABLE IF NOT EXISTS sp_closetickets "
-				+ " (ticketID INT NOT NULL, "
-				+ " startDate DATETIME NOT NULL, "
-				+ " closeDate DATETIME NOT NULL, "
-				+ " userID INTEGER UNSIGNED NOT NULL, "
-				+ " userNAME VARCHAR(32) NOT NULL, "
-				+ " FOREIGN KEY (ticketID) references sp_opentickets(ticketID) ON DELETE CASCADE, "
 				+ " FOREIGN KEY (userID) references sp_login(userID) ON DELETE CASCADE )";
 		try {
 
@@ -72,8 +68,6 @@ public class Dao {
 			System.out.println("Successfully created login table");
 			statement.executeUpdate(createOpenTicketTable);
 			System.out.println("Successfully created open ticket table");
-			statement.executeUpdate(createCloseTicketTable);
-			System.out.println("Successfully created close ticket table");
 			// end create table
 			// close connection/statement object
 			statement.close();
@@ -118,7 +112,8 @@ public class Dao {
 			// and PASS (insert) that data into your User table
 			for (List<String> rowData : array) {
 
-				sql = "insert into sp_login(userName, userPassword, adminStatus) " + "values('" + rowData.get(0) + "',"
+				sql = "insert into sp_login(userName, userPassword, adminStatus) "
+						+ "values('" + rowData.get(0) + "',"
 						+ " '"
 						+ rowData.get(1) + "','" + rowData.get(2) + "');";
 				statement.executeUpdate(sql);
@@ -133,7 +128,8 @@ public class Dao {
 		}
 	}
 
-	public int insertRecords(String userName, String ticketName, String ticketDesc, String userID, Timestamp startDate) {
+	public int insertRecords(String userName, String ticketName, String ticketDesc, String userID,
+			Timestamp startDate) {
 		int id = 0;
 		try {
 			System.out.println(userID);
@@ -141,7 +137,8 @@ public class Dao {
 			String get_user_name = "SELECT userName FROM sp_login WHERE userID = '" + userID + "'";
 			ResultSet nameSet = statement.executeQuery(get_user_name);
 			System.out.println("after select statement");
-			String insetQuery = "INSERT INTO sp_opentickets (userID, ticketName, userName, startDate, ticketDesc) VALUES (?, ?, ?, ?, ?)";
+			String insetQuery = "INSERT INTO sp_opentickets (userID, ticketName, userName, startDate, ticketDesc)"
+			+ "VALUES (?, ?, ?, ?, ?)";
 			PreparedStatement psmt = getConnection().prepareStatement(insetQuery,
 					PreparedStatement.RETURN_GENERATED_KEYS);
 
@@ -150,6 +147,8 @@ public class Dao {
 				psmt.setString(2, ticketName);
 				psmt.setString(3, nameSet.getString(1)); // get userName from resultset
 				psmt.setTimestamp(4, startDate);
+				//psmt.setTimestamp(5, null);
+				//psmt.setString(6, "Open");
 				psmt.setString(5, ticketDesc);
 				psmt.executeUpdate();
 				System.out.println("After executeUpdate statement");
@@ -177,14 +176,29 @@ public class Dao {
 		ResultSet results = null;
 		try {
 			statement = connect.createStatement();
-			results = statement.executeQuery("SELECT * FROM jpapa_tickets");
+			results = statement.executeQuery("SELECT * FROM sp_opentickets");
 			// connect.close();
 		} catch (SQLException e1) {
 			e1.printStackTrace();
 		}
 		return results;
 	}
-	// continue coding for updateRecords implementation
 
+	public int closeTickets(String ticketID, Timestamp closeTime) {
+		try {
+			statement = getConnection().createStatement();
+			String addClosedDate = "UPDATE sp_opentickets SET closeDate = ?, caseStatus = ? WHERE ticketID = ?";
+			PreparedStatement pStatement = getConnection().prepareStatement(addClosedDate);
+			pStatement.setTimestamp(1, closeTime);
+			pStatement.setString(2, "Closed");
+			pStatement.setInt(3, Integer.parseInt(ticketID)); // stopped here
+			pStatement.executeUpdate();
+			return Integer.parseInt(ticketID);
+		} catch (SQLException e2) {
+			e2.printStackTrace();
+		} // failure. Unable to delete ticket
+		return 0;
+	}
+	// continue coding for updateRecords implementation
 	// continue coding for deleteRecords implementation
 }

@@ -16,7 +16,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
-
 @SuppressWarnings("serial")
 public class Tickets extends JFrame implements ActionListener {
 
@@ -35,6 +34,7 @@ public class Tickets extends JFrame implements ActionListener {
 	JMenuItem mnuItemDelete;
 	JMenuItem mnuItemOpenTicket;
 	JMenuItem mnuItemViewTicket;
+	JMenuItem mnuItemCloseViewTicket;
 
 	public Tickets(Boolean isAdmin) {
 
@@ -73,6 +73,11 @@ public class Tickets extends JFrame implements ActionListener {
 		// add to Ticket Main menu item
 		mnuTickets.add(mnuItemViewTicket);
 
+		// initialize third sub menu item for Tickets main menu
+		mnuItemCloseViewTicket = new JMenuItem("Close Ticket");
+		// add to Ticket Main menu item
+		mnuTickets.add(mnuItemCloseViewTicket);
+
 		// initialize any more desired sub menu items below
 
 		/* Add action listeners for each desired menu item *************/
@@ -81,13 +86,12 @@ public class Tickets extends JFrame implements ActionListener {
 		mnuItemDelete.addActionListener(this);
 		mnuItemOpenTicket.addActionListener(this);
 		mnuItemViewTicket.addActionListener(this);
-
-		 /*
-		  * continue implementing any other desired sub menu items (like 
-		  * for update and delete sub menus for example) with similar 
-		  * syntax & logic as shown above
+		mnuItemCloseViewTicket.addActionListener(this);
+		/*
+		 * continue implementing any other desired sub menu items (like
+		 * for update and delete sub menus for example) with similar
+		 * syntax & logic as shown above
 		 */
-
 
 	}
 
@@ -155,6 +159,23 @@ public class Tickets extends JFrame implements ActionListener {
 			} catch (SQLException e1) {
 				e1.printStackTrace();
 			}
+		} else if (e.getSource() == mnuItemCloseViewTicket) {
+			// TODO:
+			// recreate database for sp_closetickets
+
+			String ticketID = JOptionPane.showInputDialog(null, "Enter ticket ID");
+			String closeTime = JOptionPane.showInputDialog(null, "Enter close time");
+			int id = 0;
+			// insert ticket information to database
+			Timestamp time = Timestamp.valueOf(closeTime);
+			id = dao.closeTickets(ticketID, time);
+			// display results if successful or not to console / dialog box
+
+			if (id != 0) {
+				System.out.println("Ticket ID : " + id + " closed successfully!!!");
+				JOptionPane.showMessageDialog(null, "Ticket id: " + id + " closed");
+			} else
+				System.out.println("Ticket cannot be created!!!");
 		}
 		/*
 		 * continue implementing any other desired sub menu items (like for update and
