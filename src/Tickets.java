@@ -177,6 +177,35 @@ public class Tickets extends JFrame implements ActionListener {
 			} else
 				System.out.println("Ticket cannot be created!!!");
 		}
+
+
+		else if (e.getSource() == mnuItemDelete){
+			String ticketID = JOptionPane.showInputDialog(null, "Enter ticket ID");
+			int id = 0;
+
+			id = dao.deleteTicket(Integer.parseInt(ticketID));
+			if (id != 0) {
+				System.out.println("Ticket ID : " + id + " deleted successfully!!!");
+				JOptionPane.showMessageDialog(null, "Ticket id: " + id + " deleted");
+			} else
+				System.out.println("Ticket cannot be deleted!!!");
+		}
+
+
+		else if (e.getSource() == mnuItemUpdate) {
+			String ticketID = JOptionPane.showInputDialog(null, "Enter existing ticket ID");
+			String userID = JOptionPane.showInputDialog(null, "Enter new user ID");
+			String username = JOptionPane.showInputDialog(null, "Enter new username");
+
+			int id = 0;
+
+			id = dao.updateTicket(Integer.parseInt(ticketID), Integer.parseInt(userID), username);
+			if (id != 0) {
+				System.out.println("Ticket ID : " + id + " updated successfully!!!");
+				JOptionPane.showMessageDialog(null, "Ticket id: " + id + " updated");
+			} else
+				System.out.println("Ticket cannot be updated!!!");
+		}
 		/*
 		 * continue implementing any other desired sub menu items (like for update and
 		 * delete sub menus for example) with similar syntax & logic as shown above

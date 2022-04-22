@@ -14,8 +14,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.mysql.cj.protocol.Resultset;
-
 public class Dao {
 	// instance fields
 	static Connection connect = null;
@@ -138,7 +136,7 @@ public class Dao {
 			ResultSet nameSet = statement.executeQuery(get_user_name);
 			System.out.println("after select statement");
 			String insetQuery = "INSERT INTO sp_opentickets (userID, ticketName, userName, startDate, ticketDesc)"
-			+ "VALUES (?, ?, ?, ?, ?)";
+					+ "VALUES (?, ?, ?, ?, ?)";
 			PreparedStatement psmt = getConnection().prepareStatement(insetQuery,
 					PreparedStatement.RETURN_GENERATED_KEYS);
 
@@ -147,8 +145,8 @@ public class Dao {
 				psmt.setString(2, ticketName);
 				psmt.setString(3, nameSet.getString(1)); // get userName from resultset
 				psmt.setTimestamp(4, startDate);
-				//psmt.setTimestamp(5, null);
-				//psmt.setString(6, "Open");
+				// psmt.setTimestamp(5, null);
+				// psmt.setString(6, "Open");
 				psmt.setString(5, ticketDesc);
 				psmt.executeUpdate();
 				System.out.println("After executeUpdate statement");
@@ -198,6 +196,37 @@ public class Dao {
 			e2.printStackTrace();
 		} // failure. Unable to delete ticket
 		return 0;
+	}
+
+	public int deleteTicket(int ticketID) {
+		try {
+			String deleteQuery = "DELETE FROM sp_opentickets WHERE ticketID = ?";
+			PreparedStatement pStatement = getConnection().prepareStatement(deleteQuery);
+			pStatement.setInt(1, ticketID);
+			pStatement.executeUpdate();
+			return ticketID;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			// TODO: handle exception
+		}
+		return 0;
+	}
+
+	public int updateTicket(int ticketID, int userID, String userName){
+		try{
+			String updateTicketQuery = "UPDATE sp_opentickets SET userID = ?, userName = ? WHERE ticketID = ?";
+			PreparedStatement pStatement = getConnection().prepareStatement(updateTicketQuery);
+			pStatement.setInt(1, userID);
+			pStatement.setString(2, userName);
+			pStatement.setInt(3, ticketID);
+			pStatement.executeUpdate();
+			return ticketID;
+		}catch(SQLException ex){
+			ex.printStackTrace();
+		}
+
+		return ticketID;
 	}
 	// continue coding for updateRecords implementation
 	// continue coding for deleteRecords implementation
