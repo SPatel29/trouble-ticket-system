@@ -156,7 +156,7 @@ public class Tickets extends JFrame implements ActionListener {
 
 				// Use JTable built in functionality to build a table model and
 				// display the table model off your result set!!!
-				JTable jt = new JTable(ticketsJTable.buildTableModel(dao.readRecords()));
+				JTable jt = new JTable(ticketsJTable.buildTableModel(dao.readRecords(chkIfAdmin, userID)));
 				jt.setBounds(30, 40, 200, 400);
 				JScrollPane sp = new JScrollPane(jt);
 				add(sp);

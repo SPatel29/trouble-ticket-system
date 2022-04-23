@@ -133,7 +133,7 @@ public class Dao {
 			statement = getConnection().createStatement();
 			String userNameQuery = "SELECT userName FROM sp_login WHERE userID = '" + userID + "'";
 			ResultSet nameSet = statement.executeQuery(userNameQuery);
-			//System.out.println("after select statement");
+			// System.out.println("after select statement");
 			String insetQuery = "INSERT INTO sp_opentickets (userID, ticketName, userName, startDate, ticketDesc)"
 					+ "VALUES (?, ?, ?, ?, ?)";
 			PreparedStatement psmt = getConnection().prepareStatement(insetQuery,
@@ -166,12 +166,16 @@ public class Dao {
 
 	}
 
-	public ResultSet readRecords() {
+	public ResultSet readRecords(boolean adminStatus, int userID) {
 
 		ResultSet results = null;
 		try {
 			statement = connect.createStatement();
-			results = statement.executeQuery("SELECT * FROM sp_opentickets");
+			if (adminStatus) {
+				results = statement.executeQuery("SELECT * FROM sp_opentickets");
+			} else {
+				results = statement.executeQuery("SELECT * FROM sp_opentickets WHERE userID = '" + userID + "'");
+			}
 			// connect.close();
 		} catch (SQLException e1) {
 			e1.printStackTrace();
@@ -210,8 +214,8 @@ public class Dao {
 		return 0;
 	}
 
-	public int updateTicket(int ticketID, int userID, String userName){
-		try{
+	public int updateTicket(int ticketID, int userID, String userName) {
+		try {
 			String updateTicketQuery = "UPDATE sp_opentickets SET userID = ?, userName = ? WHERE ticketID = ?";
 			PreparedStatement pStatement = getConnection().prepareStatement(updateTicketQuery);
 			pStatement.setInt(1, userID);
@@ -219,7 +223,7 @@ public class Dao {
 			pStatement.setInt(3, ticketID);
 			pStatement.executeUpdate();
 			return ticketID;
-		}catch(SQLException ex){
+		} catch (SQLException ex) {
 			ex.printStackTrace();
 		}
 
