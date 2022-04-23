@@ -138,9 +138,9 @@ public class Tickets extends JFrame implements ActionListener {
 									"Enter ID of user who ticket should be issued to"));
 				}
 				String ticketName = JOptionPane.showInputDialog(null, "Enter ticket name");
-				if (ticketName != null) {
+				if (ticketName != null && ticketName.length() > 0) {
 					String ticketDesc = JOptionPane.showInputDialog(null, "Enter a ticket description");
-					if (ticketDesc != null) {
+					if (ticketDesc != null && ticketDesc.length() > 0) {
 						// insert ticket information to database
 						long startTime = System.currentTimeMillis();
 						Timestamp currentTime = new Timestamp(startTime);
@@ -193,7 +193,7 @@ public class Tickets extends JFrame implements ActionListener {
 			// recreate database for sp_closetickets
 
 			String ticketID = JOptionPane.showInputDialog(null, "Enter ticket ID");
-			if (ticketID != null) {
+			if (ticketID != null && ticketID.length() > 0) {
 				int id = 0;
 				// insert ticket information to database
 				long startTime = System.currentTimeMillis();
@@ -218,28 +218,57 @@ public class Tickets extends JFrame implements ActionListener {
 		else if (e.getSource() == mnuItemDelete) {
 			String ticketID = JOptionPane.showInputDialog(null, "Enter ticket ID");
 			int id = 0;
+			if (ticketID != null && ticketID.length() > 0) {
+				id = dao.deleteTicket(Integer.parseInt(ticketID));
+				if (id != 0) {
+					System.out.println("Ticket ID : " + id + " deleted successfully!!!");
+					JOptionPane.showMessageDialog(null, "Ticket id: " + id + " deleted");
+				} else {
+					JOptionPane.showMessageDialog(null,
+							"Ticket id: " + ticketID + " does not exist! Failed to delete.");
+					System.out.println("User did not enter a valid ticket ID.");
+				}
+			} else {
+				JOptionPane.showMessageDialog(null,
+						"Ticket cannot be deleted with an empty ticket id value");
+				System.out.println("User entered empty ticket id.");
+			}
 
-			id = dao.deleteTicket(Integer.parseInt(ticketID));
-			if (id != 0) {
-				System.out.println("Ticket ID : " + id + " deleted successfully!!!");
-				JOptionPane.showMessageDialog(null, "Ticket id: " + id + " deleted");
-			} else
-				System.out.println("Ticket cannot be deleted!!!");
 		}
 
 		else if (e.getSource() == mnuItemUpdate) {
 			String ticketID = JOptionPane.showInputDialog(null, "Enter existing ticket ID");
-			String userID = JOptionPane.showInputDialog(null, "Enter new user ID");
-			String username = JOptionPane.showInputDialog(null, "Enter new username");
+			if (ticketID != null && ticketID.length() > 0) {
+				String userID = JOptionPane.showInputDialog(null, "Enter new user ID");
+				if (userID != null && userID.length() > 0) {
+					String username = JOptionPane.showInputDialog(null, "Enter new username");
+					if (username != null && username.length() > 0) {
+						int id = 0;
+						id = dao.updateTicket(Integer.parseInt(ticketID), Integer.parseInt(userID), username);
+						if (id != 0) {
+							System.out.println("Ticket ID : " + id + " updated successfully!!!");
+							JOptionPane.showMessageDialog(null, "Ticket id: " + id + " updated");
+						} else {
+							System.out.println("User entered incorrect ticket id. Failing update.");
+							JOptionPane.showMessageDialog(null,
+									"Ticket id: " + ticketID + " does not exist. Update failed");
+						}
+					} else {
+						JOptionPane.showMessageDialog(null,
+								"Ticket cannot be updated with an empty username value");
+						System.out.println("User entered empty username.");
+					}
+				} else {
+					JOptionPane.showMessageDialog(null,
+							"Ticket cannot be updated with an empty user id");
+					System.out.println("User entered empty id.");
+				}
+			} else {
+				JOptionPane.showMessageDialog(null,
+						"Ticket cannot be updated with an empty id");
+				System.out.println("User entered empty ticket id.");
+			}
 
-			int id = 0;
-
-			id = dao.updateTicket(Integer.parseInt(ticketID), Integer.parseInt(userID), username);
-			if (id != 0) {
-				System.out.println("Ticket ID : " + id + " updated successfully!!!");
-				JOptionPane.showMessageDialog(null, "Ticket id: " + id + " updated");
-			} else
-				System.out.println("Ticket cannot be updated!!!");
 		}
 		/*
 		 * continue implementing any other desired sub menu items (like for update and

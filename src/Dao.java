@@ -208,12 +208,17 @@ public class Dao {
 
 	public int deleteTicket(int ticketID) {
 		try {
-			String deleteQuery = "DELETE FROM sp_opentickets WHERE ticketID = ?";
-			PreparedStatement pStatement = getConnection().prepareStatement(deleteQuery);
-			pStatement.setInt(1, ticketID);
-			pStatement.executeUpdate();
-			return ticketID;
-
+			String findTicketQuery = "SELECT * FROM sp_opentickets WHERE ticketID = ?";
+			PreparedStatement ticketStatement = getConnection().prepareStatement(findTicketQuery);
+			ticketStatement.setInt(1, ticketID);
+			ResultSet mySet = ticketStatement.executeQuery();
+			if (mySet.next()) {
+				String deleteQuery = "DELETE FROM sp_opentickets WHERE ticketID = ?";
+				PreparedStatement pStatement = getConnection().prepareStatement(deleteQuery);
+				pStatement.setInt(1, ticketID);
+				pStatement.executeUpdate();
+				return ticketID;
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 			// TODO: handle exception
@@ -223,18 +228,25 @@ public class Dao {
 
 	public int updateTicket(int ticketID, int userID, String userName) {
 		try {
-			String updateTicketQuery = "UPDATE sp_opentickets SET userID = ?, userName = ? WHERE ticketID = ?";
-			PreparedStatement pStatement = getConnection().prepareStatement(updateTicketQuery);
-			pStatement.setInt(1, userID);
-			pStatement.setString(2, userName);
-			pStatement.setInt(3, ticketID);
-			pStatement.executeUpdate();
-			return ticketID;
+			String findTicketQuery = "SELECT * FROM sp_opentickets WHERE ticketID = ?";
+			PreparedStatement ticketStatement = getConnection().prepareStatement(findTicketQuery);
+			ticketStatement.setInt(1, ticketID);
+			ResultSet mySet = ticketStatement.executeQuery();
+			if (mySet.next()) {
+				String updateTicketQuery = "UPDATE sp_opentickets SET userID = ?, userName = ? WHERE ticketID = ?";
+				PreparedStatement pStatement = getConnection().prepareStatement(updateTicketQuery);
+				pStatement.setInt(1, userID);
+				pStatement.setString(2, userName);
+				pStatement.setInt(3, ticketID);
+				pStatement.executeUpdate();
+				return ticketID;
+			}
+
 		} catch (SQLException ex) {
 			ex.printStackTrace();
 		}
 
-		return ticketID;
+		return 0;
 	}
 	// continue coding for updateRecords implementation
 	// continue coding for deleteRecords implementation
