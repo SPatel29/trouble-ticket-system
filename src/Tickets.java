@@ -193,18 +193,26 @@ public class Tickets extends JFrame implements ActionListener {
 			// recreate database for sp_closetickets
 
 			String ticketID = JOptionPane.showInputDialog(null, "Enter ticket ID");
-			int id = 0;
-			// insert ticket information to database
-			long startTime = System.currentTimeMillis();
-			Timestamp currentTime = new Timestamp(startTime);
-			id = dao.closeTickets(ticketID, currentTime);
-			// display results if successful or not to console / dialog box
+			if (ticketID != null) {
+				int id = 0;
+				// insert ticket information to database
+				long startTime = System.currentTimeMillis();
+				Timestamp currentTime = new Timestamp(startTime);
+				id = dao.closeTickets(ticketID, currentTime);
+				// display results if successful or not to console / dialog box
 
-			if (id != 0) {
-				System.out.println("Ticket ID : " + id + " closed successfully!!!");
-				JOptionPane.showMessageDialog(null, "Ticket id: " + id + " closed");
-			} else
-				System.out.println("Ticket cannot be created!!!");
+				if (id != 0) {
+					System.out.println("Ticket ID : " + id + " closed successfully!!!");
+					JOptionPane.showMessageDialog(null, "Ticket id: " + id + " closed");
+				} else {
+					JOptionPane.showMessageDialog(null, "Ticket id: " + ticketID + " does not exist!");
+					System.out.println("User did not enter a valid ticket ID.");
+				}
+			} else {
+				JOptionPane.showMessageDialog(null, "Ticket cannot be closed without ticket ID");
+				System.out.println("User did not enter ticket ID. Closing input.");
+			}
+
 		}
 
 		else if (e.getSource() == mnuItemDelete) {

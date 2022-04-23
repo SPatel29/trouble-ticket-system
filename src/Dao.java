@@ -186,13 +186,20 @@ public class Dao {
 	public int closeTickets(String ticketID, Timestamp closeTime) {
 		try {
 			statement = getConnection().createStatement();
-			String addClosedDate = "UPDATE sp_opentickets SET closeDate = ?, caseStatus = ? WHERE ticketID = ?";
-			PreparedStatement pStatement = getConnection().prepareStatement(addClosedDate);
-			pStatement.setTimestamp(1, closeTime);
-			pStatement.setString(2, "Closed");
-			pStatement.setInt(3, Integer.parseInt(ticketID)); // stopped here
-			pStatement.executeUpdate();
-			return Integer.parseInt(ticketID);
+			String findTicket = "SELECT * FROM sp_opentickets WHERE ticketID = ?";
+			PreparedStatement selectStatement = getConnection().prepareStatement(findTicket);
+			selectStatement.setInt(1, Integer.parseInt(ticketID));
+			ResultSet mySet = selectStatement.executeQuery();
+			if (mySet.next()) {
+				String addClosedDate = "UPDATE sp_opentickets SET closeDate = ?, caseStatus = ? WHERE ticketID = ?";
+				PreparedStatement pStatement = getConnection().prepareStatement(addClosedDate);
+				pStatement.setTimestamp(1, closeTime);
+				pStatement.setString(2, "Closed");
+				pStatement.setInt(3, Integer.parseInt(ticketID)); // stopped here
+				pStatement.executeUpdate();
+				return Integer.parseInt(ticketID);
+			}
+			return 0;
 		} catch (SQLException e2) {
 			e2.printStackTrace();
 		} // failure. Unable to delete ticket
