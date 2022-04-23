@@ -41,7 +41,7 @@ public class Tickets extends JFrame implements ActionListener {
 
 		chkIfAdmin = isAdmin;
 		userID = id;
-		System.out.println("USERID "+ userID);
+		System.out.println("USERID " + userID);
 		createMenu();
 		prepareGUI();
 
@@ -103,7 +103,10 @@ public class Tickets extends JFrame implements ActionListener {
 		// create JMenu bar
 		JMenuBar bar = new JMenuBar();
 		bar.add(mnuFile); // add main menu items in order, to JMenuBar
-		bar.add(mnuAdmin);
+
+		if (chkIfAdmin)
+			bar.add(mnuAdmin);
+
 		bar.add(mnuTickets);
 		// add menu bar components to frame
 		setJMenuBar(bar);
@@ -128,25 +131,45 @@ public class Tickets extends JFrame implements ActionListener {
 			System.exit(0);
 		} else if (e.getSource() == mnuItemOpenTicket) {
 
-			
-			if (chkIfAdmin) {
-				userID = Integer.parseInt(JOptionPane.showInputDialog(null, "Enter ID of user who ticket should be issued to"));
-			} 
-			String ticketName = JOptionPane.showInputDialog(null, "Enter ticket name");
-			String ticketDesc = JOptionPane.showInputDialog(null, "Enter a ticket description");
-			// get ticket information
+			try {
+				if (chkIfAdmin) {
+					userID = Integer
+							.parseInt(JOptionPane.showInputDialog(null,
+									"Enter ID of user who ticket should be issued to"));
+				}
+				String ticketName = JOptionPane.showInputDialog(null, "Enter ticket name");
+				if (ticketName != null) {
+					String ticketDesc = JOptionPane.showInputDialog(null, "Enter a ticket description");
+					if (ticketDesc != null) {
+						// insert ticket information to database
+						long startTime = System.currentTimeMillis();
+						Timestamp currentTime = new Timestamp(startTime);
+						int id = dao.insertRecords(userID, ticketName, ticketDesc, currentTime);
 
-			// insert ticket information to database
-			long startTime = System.currentTimeMillis();
-			Timestamp currentTime = new Timestamp(startTime);
-			int id = dao.insertRecords(userID, ticketName, ticketDesc, currentTime);
+						// display results if successful or not to console / dialog box
+						if (id != 0) {
+							System.out.println("Ticket ID : " + id + " created successfully!!!");
+							JOptionPane.showMessageDialog(null, "Ticket id: " + id + " created");
+						} else {
+							System.out.println("Empty User Input Value detected. Cancelling ticket creation.");
+							JOptionPane.showMessageDialog(null, "Ticket cannot be created with empty value");
 
-			// display results if successful or not to console / dialog box
-			if (id != 0) {
-				System.out.println("Ticket ID : " + id + " created successfully!!!");
-				JOptionPane.showMessageDialog(null, "Ticket id: " + id + " created");
-			} else
-				System.out.println("Ticket cannot be created!!!");
+						}
+					} else {
+						JOptionPane.showMessageDialog(null, "Ticket cannot be created with empty value");
+						System.out.println("Empty User Input Value detected. Cancelling ticket creation.");
+					}
+				} else {
+					JOptionPane.showMessageDialog(null, "Ticket cannot be created with empty value");
+					System.out.println("Empty User Input Value detected. Cancelling ticket creation.");
+				}
+				// get ticket information
+
+			} catch (NumberFormatException ex) {
+				JOptionPane.showMessageDialog(null, "Ticket cannot be created with empty value");
+				System.out.println("Empty User Input Value detected. Cancelling ticket creation.");
+			}
+
 		}
 
 		else if (e.getSource() == mnuItemViewTicket) {
