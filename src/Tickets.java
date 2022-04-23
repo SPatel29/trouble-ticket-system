@@ -170,11 +170,11 @@ public class Tickets extends JFrame implements ActionListener {
 			// recreate database for sp_closetickets
 
 			String ticketID = JOptionPane.showInputDialog(null, "Enter ticket ID");
-			String closeTime = JOptionPane.showInputDialog(null, "Enter close time");
 			int id = 0;
 			// insert ticket information to database
-			Timestamp time = Timestamp.valueOf(closeTime);
-			id = dao.closeTickets(ticketID, time);
+			long startTime = System.currentTimeMillis();
+			Timestamp currentTime = new Timestamp(startTime);
+			id = dao.closeTickets(ticketID, currentTime);
 			// display results if successful or not to console / dialog box
 
 			if (id != 0) {
