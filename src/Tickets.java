@@ -241,23 +241,23 @@ public class Tickets extends JFrame implements ActionListener {
 			if (ticketID != null && ticketID.length() > 0) {
 				String userID = JOptionPane.showInputDialog(null, "Enter new user ID");
 				if (userID != null && userID.length() > 0) {
-					String username = JOptionPane.showInputDialog(null, "Enter new username");
-					if (username != null && username.length() > 0) {
-						int id = 0;
-						id = dao.updateTicket(Integer.parseInt(ticketID), Integer.parseInt(userID), username);
-						if (id != 0) {
-							System.out.println("Ticket ID : " + id + " updated successfully!!!");
-							JOptionPane.showMessageDialog(null, "Ticket id: " + id + " updated");
-						} else {
-							System.out.println("User entered incorrect ticket id. Failing update.");
-							JOptionPane.showMessageDialog(null,
-									"Ticket id: " + ticketID + " does not exist. Update failed");
-						}
-					} else {
+
+					int id = 0;
+					id = dao.updateTicket(Integer.parseInt(ticketID), Integer.parseInt(userID));
+					if (id > 0) {
+						System.out.println("Ticket ID : " + id + " updated successfully!!!");
+						JOptionPane.showMessageDialog(null, "Ticket id: " + id + " updated");
+					} else if (id == 0) {
+						System.out.println("User entered incorrect ticket id. Failing update.");
 						JOptionPane.showMessageDialog(null,
-								"Ticket cannot be updated with an empty username value");
-						System.out.println("User entered empty username.");
+								"Ticket id: " + ticketID + " does not exist. Update failed");
 					}
+					else{
+						System.out.println("User entered incorrect user id. Failing update.");
+						JOptionPane.showMessageDialog(null,
+								"User ID " + userID + " does not exist. Update failed");
+					}
+
 				} else {
 					JOptionPane.showMessageDialog(null,
 							"Ticket cannot be updated with an empty user id");
