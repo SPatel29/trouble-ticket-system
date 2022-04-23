@@ -6,9 +6,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.sql.SQLException;
-import java.sql.Time;
 import java.sql.Timestamp;
-import java.time.zone.ZoneOffsetTransitionRule.TimeDefinition;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -24,6 +22,7 @@ public class Tickets extends JFrame implements ActionListener {
 	// class level member objects
 	Dao dao = new Dao(); // for CRUD operations
 	Boolean chkIfAdmin = null;
+	int userID;
 
 	// Main menu object items
 	private JMenu mnuFile = new JMenu("File");
@@ -38,9 +37,11 @@ public class Tickets extends JFrame implements ActionListener {
 	JMenuItem mnuItemViewTicket;
 	JMenuItem mnuItemCloseViewTicket;
 
-	public Tickets(Boolean isAdmin) {
+	public Tickets(Boolean isAdmin, int id) {
 
 		chkIfAdmin = isAdmin;
+		userID = id;
+		System.out.println("USERID "+ userID);
 		createMenu();
 		prepareGUI();
 
@@ -127,12 +128,10 @@ public class Tickets extends JFrame implements ActionListener {
 			System.exit(0);
 		} else if (e.getSource() == mnuItemOpenTicket) {
 
-			String userID;
+			
 			if (chkIfAdmin) {
-				userID = JOptionPane.showInputDialog(null, "Enter ID of user who ticket should be issued to");
-			} else {
-				userID = JOptionPane.showInputDialog(null, "Enter your user ID");
-			}
+				userID = Integer.parseInt(JOptionPane.showInputDialog(null, "Enter ID of user who ticket should be issued to"));
+			} 
 			String ticketName = JOptionPane.showInputDialog(null, "Enter ticket name");
 			String ticketDesc = JOptionPane.showInputDialog(null, "Enter a ticket description");
 			// get ticket information
@@ -140,7 +139,7 @@ public class Tickets extends JFrame implements ActionListener {
 			// insert ticket information to database
 			long startTime = System.currentTimeMillis();
 			Timestamp currentTime = new Timestamp(startTime);
-			int id = dao.insertRecords(Integer.parseInt(userID), ticketName, ticketDesc, currentTime);
+			int id = dao.insertRecords(userID, ticketName, ticketDesc, currentTime);
 
 			// display results if successful or not to console / dialog box
 			if (id != 0) {

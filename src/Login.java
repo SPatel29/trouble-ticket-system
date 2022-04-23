@@ -72,7 +72,7 @@ public class Login extends JFrame {
 					if (rs.next()) {
 						admin = rs.getBoolean("adminStatus"); // get table column value
 						System.out.println(admin);
-						new Tickets(admin); //open Tickets file / GUI interface
+						new Tickets(admin, rs.getInt(1)); //open Tickets file / GUI interface
 						setVisible(false); // HIDE THE FRAME
 						dispose(); // CLOSE OUT THE WINDOW
 					} else
