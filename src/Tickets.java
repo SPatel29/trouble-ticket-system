@@ -176,14 +176,26 @@ public class Tickets extends JFrame implements ActionListener {
 
 			// retrieve all tickets details for viewing in JTable
 			try {
-
+				JTable jt = null;
 				// Use JTable built in functionality to build a table model and
 				// display the table model off your result set!!!
-				JTable jt = new JTable(ticketsJTable.buildTableModel(dao.readRecords(chkIfAdmin, userID)));
-				jt.setBounds(30, 40, 200, 400);
-				JScrollPane sp = new JScrollPane(jt);
-				add(sp);
-				setVisible(true); // refreshes or repaints frame on screen
+				int choice = JOptionPane.showConfirmDialog(null, "View ticket by ID? ?",
+						"alert", JOptionPane.YES_NO_OPTION);
+				if (choice == JOptionPane.YES_OPTION) {
+					String ticketID = JOptionPane.showInputDialog(null, "Enter ticket ID");
+					jt = new JTable(ticketsJTable.buildTableModel(dao.readRecords(chkIfAdmin, userID, Integer.parseInt(ticketID))));
+					jt.setBounds(30, 40, 200, 400);
+					JScrollPane sp = new JScrollPane(jt);
+					add(sp);
+					setVisible(true); // refreshes or repaints frame on screen
+
+				} else if (choice == JOptionPane.NO_OPTION) {
+					jt = new JTable(ticketsJTable.buildTableModel(dao.readRecords(chkIfAdmin, userID, 0)));
+					jt.setBounds(30, 40, 200, 400);
+					JScrollPane sp = new JScrollPane(jt);
+					add(sp);
+					setVisible(true); // refreshes or repaints frame on screen
+				}
 
 			} catch (SQLException e1) {
 				e1.printStackTrace();

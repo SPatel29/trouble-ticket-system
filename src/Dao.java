@@ -166,15 +166,31 @@ public class Dao {
 
 	}
 
-	public ResultSet readRecords(boolean adminStatus, int userID) {
+	public ResultSet readRecords(boolean adminStatus, int userID, int ticketID) {
 
 		ResultSet results = null;
 		try {
-			statement = connect.createStatement();
-			if (adminStatus) {
-				results = statement.executeQuery("SELECT * FROM sp_opentickets");
-			} else {
-				results = statement.executeQuery("SELECT * FROM sp_opentickets WHERE userID = '" + userID + "'");
+			if (ticketID > 0 && !adminStatus) {
+				String query = "SELECT * FROM sp_opentickets WHERE userID = ? AND ticketID = ?";
+				PreparedStatement pStatement = getConnection().prepareStatement(query);
+				pStatement.setInt(1, userID);
+				pStatement.setInt(2, ticketID);
+				return pStatement.executeQuery();
+
+			} else if (ticketID > 0 && adminStatus) {
+				String query = "SELECT * FROM sp_opentickets WHERE ticketID = ?";
+				PreparedStatement pStatement = getConnection().prepareStatement(query);
+				pStatement.setInt(1, ticketID);
+				return pStatement.executeQuery();
+			} else if (adminStatus) {
+				String query = "SELECT * FROM sp_opentickets";
+				PreparedStatement pStatement = getConnection().prepareStatement(query);
+				return pStatement.executeQuery();
+			} else if (!adminStatus) {
+				String query = "SELECT * FROM sp_opentickets WHERE userID = ?";
+				PreparedStatement pStatement = getConnection().prepareStatement(query);
+				pStatement.setInt(1, userID);
+				return pStatement.executeQuery();
 			}
 			// connect.close();
 		} catch (SQLException e1) {
