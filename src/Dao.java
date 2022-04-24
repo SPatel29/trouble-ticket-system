@@ -14,8 +14,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.mysql.cj.x.protobuf.MysqlxPrepare.Prepare;
-
 public class Dao {
 	// instance fields
 	static Connection connect = null;
@@ -210,15 +208,10 @@ public class Dao {
 
 	public int deleteTicket(int ticketID) {
 		try {
-			String findTicketQuery = "SELECT * FROM sp_opentickets WHERE ticketID = ?";
+			String findTicketQuery = "DELETE FROM sp_opentickets WHERE ticketID = ?";
 			PreparedStatement ticketStatement = getConnection().prepareStatement(findTicketQuery);
 			ticketStatement.setInt(1, ticketID);
-			ResultSet mySet = ticketStatement.executeQuery();
-			if (mySet.next()) {
-				String deleteQuery = "DELETE FROM sp_opentickets WHERE ticketID = ?";
-				PreparedStatement pStatement = getConnection().prepareStatement(deleteQuery);
-				pStatement.setInt(1, ticketID);
-				pStatement.executeUpdate();
+			if (ticketStatement.executeUpdate() > 0) {
 				return ticketID;
 			}
 		} catch (SQLException e) {
@@ -228,18 +221,12 @@ public class Dao {
 		return 0;
 	}
 
-	public int updateTicket(int ticketID, int userID, String description, boolean adminStatus) {
+	public int updateTicket(int ticketID, String description) {
 		try {
 			String updateTicketQuery = "UPDATE sp_opentickets SET ticketDesc = ? WHERE ticketID = ?";
-			if (!adminStatus) {
-				updateTicketQuery = "UPDATE sp_opentickets SET ticketDesc = ? WHERE ticketID = ? AND userID = ?";
-			}
 			PreparedStatement pStatement = getConnection().prepareStatement(updateTicketQuery);
 			pStatement.setString(1, description);
 			pStatement.setInt(2, ticketID);
-			if (!adminStatus) {
-				pStatement.setInt(3, userID);
-			}
 			if (pStatement.executeUpdate() > 0) {
 				return ticketID;
 			}

@@ -59,7 +59,7 @@ public class Tickets extends JFrame implements ActionListener {
 		// initialize first sub menu items for Admin main menu
 		mnuItemUpdate = new JMenuItem("Update Ticket");
 		// add to Admin main menu item
-		mnuTickets.add(mnuItemUpdate);
+		mnuAdmin.add(mnuItemUpdate);
 
 		// initialize second sub menu items for Admin main menu
 		mnuItemDelete = new JMenuItem("Delete Ticket");
@@ -219,15 +219,25 @@ public class Tickets extends JFrame implements ActionListener {
 			String ticketID = JOptionPane.showInputDialog(null, "Enter ticket ID");
 			int id = 0;
 			if (ticketID != null && ticketID.length() > 0) {
-				id = dao.deleteTicket(Integer.parseInt(ticketID));
-				if (id != 0) {
-					System.out.println("Ticket ID : " + id + " deleted successfully!!!");
-					JOptionPane.showMessageDialog(null, "Ticket id: " + id + " deleted");
-				} else {
+				int choice = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete ticket:" + ticketID
+						+ "?",
+						"alert", JOptionPane.YES_NO_OPTION);
+				if (choice == JOptionPane.YES_OPTION) {
+					id = dao.deleteTicket(Integer.parseInt(ticketID));
+					if (id != 0) {
+						System.out.println("Ticket ID : " + id + " deleted successfully!!!");
+						JOptionPane.showMessageDialog(null, "Ticket id: " + id + " deleted");
+					} else {
+						JOptionPane.showMessageDialog(null,
+								"Ticket id: " + ticketID + " does not exist! Failed to delete.");
+						System.out.println("User did not enter a valid ticket ID.");
+					}
+				} else if (choice == JOptionPane.NO_OPTION) {
 					JOptionPane.showMessageDialog(null,
-							"Ticket id: " + ticketID + " does not exist! Failed to delete.");
-					System.out.println("User did not enter a valid ticket ID.");
+							"Delete Unsuccesful. ");
+					System.out.println("User clicked on cancel");
 				}
+
 			} else {
 				JOptionPane.showMessageDialog(null,
 						"Ticket cannot be deleted with an empty ticket id value");
@@ -242,7 +252,7 @@ public class Tickets extends JFrame implements ActionListener {
 				String description = JOptionPane.showInputDialog(null, "Enter new ticket Description");
 				if (description != null && description.length() > 0) {
 					int id = 0;
-					id = dao.updateTicket(Integer.parseInt(ticketID), userID, description, chkIfAdmin);
+					id = dao.updateTicket(Integer.parseInt(ticketID), description);
 					if (id > 0) {
 						System.out.println("Ticket ID : " + id + " updated successfully!!!");
 						JOptionPane.showMessageDialog(null, "Ticket id: " + id + " updated successfully");
@@ -252,17 +262,18 @@ public class Tickets extends JFrame implements ActionListener {
 								"Ticket does not exist or it does not belong to specified user. Failing update");
 					}
 					/*
-					else if(id == -2){
-						System.out.println("User entered ticketID that does not belong to them");
-						JOptionPane.showMessageDialog(null,
-								"Ticket id: " + ticketID + " does not belong to your user ID. Update failed");
-					}
-					else{
-						System.out.println("User entered incorrect user id. Failing update.");
-						JOptionPane.showMessageDialog(null,
-								"User ID " + userID + " does not exist. Update failed");
-					}
-					*/
+					 * else if(id == -2){
+					 * System.out.println("User entered ticketID that does not belong to them");
+					 * JOptionPane.showMessageDialog(null,
+					 * "Ticket id: " + ticketID +
+					 * " does not belong to your user ID. Update failed");
+					 * }
+					 * else{
+					 * System.out.println("User entered incorrect user id. Failing update.");
+					 * JOptionPane.showMessageDialog(null,
+					 * "User ID " + userID + " does not exist. Update failed");
+					 * }
+					 */
 				} else {
 					JOptionPane.showMessageDialog(null,
 							"Ticket cannot be updated with an empty description");
