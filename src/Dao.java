@@ -41,21 +41,21 @@ public class Dao {
 
 	public void createTables() {
 		// variables for SQL Query table creations
-		final String createLoginTable = "CREATE TABLE IF NOT EXISTS sp_login ("
-				+ " userID INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, "
-				+ " userName VARCHAR(32) NOT NULL, "
-				+ " userPassword VARCHAR(32) NOT NULL, "
-				+ " adminStatus INT )";
-		final String createOpenTicketTable = "CREATE TABLE IF NOT EXISTS sp_opentickets ( "
+		final String createLoginTable = "CREATE TABLE IF NOT EXISTS spate_login ("
+				+ " userID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
+				+ " userName VARCHAR(55) NOT NULL, "
+				+ " userPassword VARCHAR(256) NOT NULL, "
+				+ " adminStatus TINYINT )";
+		final String createOpenTicketTable = "CREATE TABLE IF NOT EXISTS spate_opentickets ( "
 				+ " ticketID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
 				+ " userID INT NOT NULL, "
-				+ " ticketName VARCHAR(32) NOT NULL, "
-				+ " userName VARCHAR(32) NOT NULL, "
+				+ " ticketName VARCHAR(100) NOT NULL, "
+				+ " userName VARCHAR(55) NOT NULL, "
 				+ " startDate DATETIME NOT NULL, "
-				+ " closeDate DATETIME, " // set to NULL
-				+ " caseStatus VARCHAR(32) NOT NULL, "
-				+ " ticketDesc VARCHAR(32) NOT NULL, "
-				+ " FOREIGN KEY (userID) references sp_login(userID) ON DELETE CASCADE )";
+				+ " closeDate DATETIME NULL, " // sdefault value is set to NULL
+				+ " caseStatus VARCHAR(50), "
+				+ " ticketDesc VARCHAR(150) NOT NULL, "
+				+ " FOREIGN KEY (userID) references spate_login(userID) ON DELETE CASCADE )";
 		try {
 
 			// execute queries to create tables
@@ -110,7 +110,7 @@ public class Dao {
 			// and PASS (insert) that data into your User table
 			for (List<String> rowData : array) {
 
-				sql = "insert into sp_login(userName, userPassword, adminStatus) "
+				sql = "insert into spate_login(userName, userPassword, adminStatus) "
 						+ "values('" + rowData.get(0) + "',"
 						+ " '"
 						+ rowData.get(1) + "','" + rowData.get(2) + "');";
@@ -131,10 +131,10 @@ public class Dao {
 		try {
 			System.out.println(userID);
 			statement = getConnection().createStatement();
-			String userNameQuery = "SELECT userName FROM sp_login WHERE userID = '" + userID + "'";
+			String userNameQuery = "SELECT userName FROM spate_login WHERE userID = '" + userID + "'";
 			ResultSet nameSet = statement.executeQuery(userNameQuery);
 			// System.out.println("after select statement");
-			String insetQuery = "INSERT INTO sp_opentickets (userID, ticketName, userName, startDate, ticketDesc)"
+			String insetQuery = "INSERT INTO spate_opentickets (userID, ticketName, userName, startDate, ticketDesc)"
 					+ "VALUES (?, ?, ?, ?, ?)";
 			PreparedStatement psmt = getConnection().prepareStatement(insetQuery,
 					PreparedStatement.RETURN_GENERATED_KEYS);
@@ -155,7 +155,6 @@ public class Dao {
 			if (resultSet.next()) {
 				// retrieve first field in table
 				id = resultSet.getInt(1);
-				System.out.println("after the id = resultSet...");
 			}
 
 		} catch (SQLException e) {
@@ -171,23 +170,23 @@ public class Dao {
 		ResultSet results = null;
 		try {
 			if (ticketID > 0 && !adminStatus) {
-				String query = "SELECT * FROM sp_opentickets WHERE userID = ? AND ticketID = ?";
+				String query = "SELECT * FROM spate_opentickets WHERE userID = ? AND ticketID = ?";
 				PreparedStatement pStatement = getConnection().prepareStatement(query);
 				pStatement.setInt(1, userID);
 				pStatement.setInt(2, ticketID);
 				return pStatement.executeQuery();
 
 			} else if (ticketID > 0 && adminStatus) {
-				String query = "SELECT * FROM sp_opentickets WHERE ticketID = ?";
+				String query = "SELECT * FROM spate_opentickets WHERE ticketID = ?";
 				PreparedStatement pStatement = getConnection().prepareStatement(query);
 				pStatement.setInt(1, ticketID);
 				return pStatement.executeQuery();
 			} else if (adminStatus) {
-				String query = "SELECT * FROM sp_opentickets";
+				String query = "SELECT * FROM spate_opentickets";
 				PreparedStatement pStatement = getConnection().prepareStatement(query);
 				return pStatement.executeQuery();
 			} else if (!adminStatus) {
-				String query = "SELECT * FROM sp_opentickets WHERE userID = ?";
+				String query = "SELECT * FROM spate_opentickets WHERE userID = ?";
 				PreparedStatement pStatement = getConnection().prepareStatement(query);
 				pStatement.setInt(1, userID);
 				return pStatement.executeQuery();
@@ -201,9 +200,9 @@ public class Dao {
 
 	public int closeTickets(String ticketID, Timestamp closeTime, int userID, boolean adminStatus) {
 		try {
-			String addClosedDate = "UPDATE sp_opentickets SET closeDate = ?, caseStatus = ? WHERE ticketID = ?";
+			String addClosedDate = "UPDATE spate_opentickets SET closeDate = ?, caseStatus = ? WHERE ticketID = ?";
 			if (!adminStatus) {
-				addClosedDate = "UPDATE sp_opentickets SET closeDate = ?, caseStatus = ? WHERE ticketID = ? AND userID = ?";
+				addClosedDate = "UPDATE spate_opentickets SET closeDate = ?, caseStatus = ? WHERE ticketID = ? AND userID = ?";
 			}
 			PreparedStatement pStatement = getConnection().prepareStatement(addClosedDate);
 			pStatement.setTimestamp(1, closeTime);
@@ -223,7 +222,7 @@ public class Dao {
 
 	public int deleteTicket(int ticketID) {
 		try {
-			String findTicketQuery = "DELETE FROM sp_opentickets WHERE ticketID = ?";
+			String findTicketQuery = "DELETE FROM spate_opentickets WHERE ticketID = ?";
 			PreparedStatement ticketStatement = getConnection().prepareStatement(findTicketQuery);
 			ticketStatement.setInt(1, ticketID);
 			if (ticketStatement.executeUpdate() > 0) {
@@ -238,7 +237,7 @@ public class Dao {
 
 	public int updateTicket(int ticketID, String description) {
 		try {
-			String updateTicketQuery = "UPDATE sp_opentickets SET ticketDesc = ? WHERE ticketID = ?";
+			String updateTicketQuery = "UPDATE spate_opentickets SET ticketDesc = ? WHERE ticketID = ?";
 			PreparedStatement pStatement = getConnection().prepareStatement(updateTicketQuery);
 			pStatement.setString(1, description);
 			pStatement.setInt(2, ticketID);
