@@ -228,40 +228,24 @@ public class Dao {
 		return 0;
 	}
 
-	public int updateTicket(int ticketID, int userID) {
+	public int updateTicket(int ticketID, int userID, String description, boolean adminStatus) {
 		try {
-			String findTicketQuery = "SELECT * FROM sp_opentickets WHERE ticketID = ?";
-			PreparedStatement ticketStatement = getConnection().prepareStatement(findTicketQuery);
-			ticketStatement.setInt(1, ticketID);
-			ResultSet mySet = ticketStatement.executeQuery();
-			if (mySet.next()) {
-
-				String findUserNameQuery = "SELECT userName FROM sp_login WHERE userID = ?";
-				PreparedStatement userNameStatement = getConnection().prepareStatement(findUserNameQuery);
-				System.out.println("USER ID: " + userID);
-				userNameStatement.setInt(1, userID);
-				ResultSet name = userNameStatement.executeQuery();
-				if (name.next()) {
-					String userName = name.getString(1);
-					System.out.println(userName);
-					String updateTicketQuery = "UPDATE sp_opentickets SET userID = ?, userName = ? WHERE ticketID = ?";
-					PreparedStatement pStatement = getConnection().prepareStatement(updateTicketQuery);
-					pStatement.setInt(1, userID);
-					pStatement.setString(2, userName);
-					pStatement.setInt(3, ticketID);
-					pStatement.executeUpdate();
-					return ticketID;
-				}
-				else{
-					return -1;
-				}
-
+			String updateTicketQuery = "UPDATE sp_opentickets SET ticketDesc = ? WHERE ticketID = ?";
+			if (!adminStatus) {
+				updateTicketQuery = "UPDATE sp_opentickets SET ticketDesc = ? WHERE ticketID = ? AND userID = ?";
 			}
-
+			PreparedStatement pStatement = getConnection().prepareStatement(updateTicketQuery);
+			pStatement.setString(1, description);
+			pStatement.setInt(2, ticketID);
+			if (!adminStatus) {
+				pStatement.setInt(3, userID);
+			}
+			if (pStatement.executeUpdate() > 0) {
+				return ticketID;
+			}
 		} catch (SQLException ex) {
 			ex.printStackTrace();
 		}
-
 		return 0;
 	}
 	// continue coding for updateRecords implementation
