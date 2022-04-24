@@ -183,7 +183,8 @@ public class Tickets extends JFrame implements ActionListener {
 						"alert", JOptionPane.YES_NO_OPTION);
 				if (choice == JOptionPane.YES_OPTION) {
 					String ticketID = JOptionPane.showInputDialog(null, "Enter ticket ID");
-					jt = new JTable(ticketsJTable.buildTableModel(dao.readRecords(chkIfAdmin, userID, Integer.parseInt(ticketID))));
+					jt = new JTable(ticketsJTable
+							.buildTableModel(dao.readRecords(chkIfAdmin, userID, Integer.parseInt(ticketID))));
 					jt.setBounds(30, 40, 200, 400);
 					JScrollPane sp = new JScrollPane(jt);
 					add(sp);
@@ -210,15 +211,17 @@ public class Tickets extends JFrame implements ActionListener {
 				// insert ticket information to database
 				long startTime = System.currentTimeMillis();
 				Timestamp currentTime = new Timestamp(startTime);
-				id = dao.closeTickets(ticketID, currentTime);
+				id = dao.closeTickets(ticketID, currentTime, userID, chkIfAdmin);
 				// display results if successful or not to console / dialog box
-
 				if (id != 0) {
 					System.out.println("Ticket ID : " + id + " closed successfully!!!");
-					JOptionPane.showMessageDialog(null, "Ticket id: " + id + " closed");
-				} else {
-					JOptionPane.showMessageDialog(null, "Ticket id: " + ticketID + " does not exist!");
-					System.out.println("User did not enter a valid ticket ID.");
+					JOptionPane.showMessageDialog(null, "Ticket id: " + ticketID + " closed");
+				}
+				if (id == 0) {
+					System.out.println("User has entered invalid ticket info or ticket not assigned to the user!");
+					JOptionPane.showMessageDialog(null,
+							"Ticket id: " + ticketID + " not assigned to user ID: " + userID +
+									", or ticket " + ticketID + " does not exist!");
 				}
 			} else {
 				JOptionPane.showMessageDialog(null, "Ticket cannot be closed without ticket ID");
