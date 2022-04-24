@@ -90,7 +90,8 @@ public class Login extends JFrame {
 		setVisible(true); // SHOW THE FRAME
 	}
 
-	public static String hashPassword(String password) {
+	// algorithm for hasing provided by Professor Papademas. It is in his final project notes
+	public static String hashPassword(String password) {	 
 
 		MessageDigest md;
 		StringBuffer sb = null;
@@ -109,7 +110,7 @@ public class Login extends JFrame {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return sb.toString();
+		return sb.toString();	//returns a String version of the HEX value hashed password
 	}
 
 	public static void main(String[] args) {

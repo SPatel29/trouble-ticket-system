@@ -107,8 +107,8 @@ public class Dao {
 
 			statement = getConnection().createStatement();
 
-			// create loop to grab each array index containing a list of values
-			// and PASS (insert) that data into your User table
+			// algorithm for hasing provided by Professor Papademas. It is in his final
+			// project notes
 			for (List<String> rowData : array) {
 				String password = rowData.get(1);
 
@@ -182,23 +182,27 @@ public class Dao {
 
 		ResultSet results = null;
 		try {
-			if (ticketID > 0 && !adminStatus) {
-				String query = "SELECT * FROM spate_opentickets WHERE userID = ? AND ticketID = ?";
+			if (ticketID > 0 && !adminStatus) {		//if ticket exists and user is not an admin
+				// check if ticket is assigned to user
+				String query = "SELECT * FROM spate_opentickets WHERE userID = ? AND ticketID = ?";	
 				PreparedStatement pStatement = getConnection().prepareStatement(query);
 				pStatement.setInt(1, userID);
 				pStatement.setInt(2, ticketID);
 				return pStatement.executeQuery();
 
-			} else if (ticketID > 0 && adminStatus) {
+			} else if (ticketID > 0 && adminStatus) {	//if ticket exists and user is an admin
+				//admins are able to read tickets no matter if assigned to them or not
 				String query = "SELECT * FROM spate_opentickets WHERE ticketID = ?";
 				PreparedStatement pStatement = getConnection().prepareStatement(query);
 				pStatement.setInt(1, ticketID);
 				return pStatement.executeQuery();
-			} else if (adminStatus) {
+			} else if (adminStatus) {	//if admin status.
+				//admins can read any tickets
 				String query = "SELECT * FROM spate_opentickets";
 				PreparedStatement pStatement = getConnection().prepareStatement(query);
 				return pStatement.executeQuery();
-			} else if (!adminStatus) {
+			} else if (!adminStatus) {	//if not an admin
+				//users that are not admins are only allowed to read their own tickets
 				String query = "SELECT * FROM spate_opentickets WHERE userID = ?";
 				PreparedStatement pStatement = getConnection().prepareStatement(query);
 				pStatement.setInt(1, userID);
@@ -213,18 +217,19 @@ public class Dao {
 
 	public int closeTickets(String ticketID, Timestamp closeTime, int userID, boolean adminStatus) {
 		try {
+			// if admin, admins can close any tickets, even the ones not assigned to them
 			String addClosedDate = "UPDATE spate_opentickets SET closeDate = ?, caseStatus = ? WHERE ticketID = ?";
-			if (!adminStatus) {
+			if (!adminStatus) {	//if not an admin, users are only allowed to close their own tickets, no one elses
 				addClosedDate = "UPDATE spate_opentickets SET closeDate = ?, caseStatus = ? WHERE ticketID = ? AND userID = ?";
 			}
 			PreparedStatement pStatement = getConnection().prepareStatement(addClosedDate);
-			pStatement.setTimestamp(1, closeTime);
-			pStatement.setString(2, "Closed");
+			pStatement.setTimestamp(1, closeTime);	
+			pStatement.setString(2, "Closed");	//assign ticket as closed
 			pStatement.setInt(3, Integer.parseInt(ticketID));
-			if (!adminStatus) {
+			if (!adminStatus) {		//users that are not admin are only allowed to close their own tickets
 				pStatement.setInt(4, userID);
 			}
-			if (pStatement.executeUpdate() > 0) {
+			if (pStatement.executeUpdate() > 0) {	//if we found a valid ticket
 				return Integer.parseInt(ticketID);
 			}
 		} catch (SQLException e2) {
@@ -238,7 +243,7 @@ public class Dao {
 			String findTicketQuery = "DELETE FROM spate_opentickets WHERE ticketID = ?";
 			PreparedStatement ticketStatement = getConnection().prepareStatement(findTicketQuery);
 			ticketStatement.setInt(1, ticketID);
-			if (ticketStatement.executeUpdate() > 0) {
+			if (ticketStatement.executeUpdate() > 0) {	//if we found a ticket that can be deleted
 				return ticketID;
 			}
 		} catch (SQLException e) {
@@ -254,7 +259,7 @@ public class Dao {
 			PreparedStatement pStatement = getConnection().prepareStatement(updateTicketQuery);
 			pStatement.setString(1, description);
 			pStatement.setInt(2, ticketID);
-			if (pStatement.executeUpdate() > 0) {
+			if (pStatement.executeUpdate() > 0) {	//if we found a ticket that can be updated
 				return ticketID;
 			}
 		} catch (SQLException ex) {
