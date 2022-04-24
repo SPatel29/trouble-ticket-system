@@ -3,6 +3,7 @@ package src;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -109,11 +110,23 @@ public class Dao {
 			// create loop to grab each array index containing a list of values
 			// and PASS (insert) that data into your User table
 			for (List<String> rowData : array) {
+				String password = rowData.get(1);
+
+				MessageDigest md = MessageDigest.getInstance("SHA-256");
+				md.update(password.getBytes());
+
+				byte byteData[] = md.digest();
+
+				// convert the byte to hex format method 1
+				StringBuffer sb = new StringBuffer();
+				for (int i = 0; i < byteData.length; i++) {
+					sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
+				}
 
 				sql = "insert into spate_login(userName, userPassword, adminStatus) "
 						+ "values('" + rowData.get(0) + "',"
 						+ " '"
-						+ rowData.get(1) + "','" + rowData.get(2) + "');";
+						+ sb.toString() + "','" + rowData.get(2) + "');";
 				statement.executeUpdate(sql);
 			}
 			System.out.println("Inserts completed in the given database...");
