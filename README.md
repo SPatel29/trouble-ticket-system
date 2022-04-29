@@ -26,7 +26,6 @@ The applicatoin then uses the database to help users login the application. Acco
 
 Regular users can only view their own tickets. They can view a particular ticket by ID, or they can view all of the tickets assigned to them. Ticket information is displayed in a tabular layout.
 
-
 ### Close Tickets
 
 Regular users can close their own tickets. They can close a ticket by speciying a ticket ID. In the background the java code will communicate with the database and check if the user inputted ticket ID is assigned to them or not. If it assigned to them the user will have succesfully closed it, otherwise the closing will be unsucessful. If the closing of the ticket is succesful, it will capture a timestamp of when user closed ticket and it will change the status of the ticket to bein closed.
@@ -52,4 +51,3 @@ When admins close tickets they can close any ticket, regardless of if the ticket
 ### Delete Ticket
 
 Admins can also delete tickets. Admins can delete a ticket by providing the tifcket ID. Admins do not need to be assigned the ticket to delete them
-
